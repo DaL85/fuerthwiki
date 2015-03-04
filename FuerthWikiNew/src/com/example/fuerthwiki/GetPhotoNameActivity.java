@@ -1,13 +1,13 @@
 package com.example.fuerthwiki;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import jxl.Cell;
-import jxl.Sheet;
-import jxl.Workbook;
+import org.apache.poi.hssf.usermodel.HSSFSheet;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 
 import android.app.ListActivity;
 import android.content.Intent;
@@ -33,7 +33,6 @@ public class GetPhotoNameActivity extends ListActivity{
 		try {
 			super.onCreate(savedInstanceState);   
 			setContentView(R.layout.activity_getphotoname);
-			//hier ListView mit allen Elementen anzeigen
 			ExcelItemArrayAdapter = new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1);//new CustomAdapter(this,R.id.textview_b_item);
 	        setListAdapter(ExcelItemArrayAdapter);
 	        
@@ -50,16 +49,21 @@ public class GetPhotoNameActivity extends ListActivity{
 				@Override
 				public void onItemClick(AdapterView<?> arg0, View arg1,
 						int arg2, long arg3) {
-					Intent i = new Intent(GetPhotoNameActivity.this, ReadWorksheetContentActivity.class);
-					i.putExtra(Constants.EXCELFILE, excelFile);
-					i.putExtra(Constants.WORKSHEET, ExcelItemArrayAdapter.getItem(arg2));
-					startActivityForResult(i, Constants.CODE_FOR_WORKSHEETCONTENT);	
+					if(!excelItems.contains("Data not found..!")&&!excelItems.contains("File not found..!"))
+					{
+						Intent i = new Intent(GetPhotoNameActivity.this, ReadWorksheetContentActivity.class);
+						i.putExtra(Constants.EXCELFILE, excelFile);
+						i.putExtra(Constants.WORKSHEET, ExcelItemArrayAdapter.getItem(arg2));
+						startActivityForResult(i, Constants.CODE_FOR_WORKSHEETCONTENT);	
+					}
+					else 
+					{
+						setResult(RESULT_CANCELED);
+			        	finish();
+					}
 				}
 			});
-	      
-			//Element wählen lassen dann(aber noch abändern):
-//			
-			
+	
 		} catch (Exception e) {
 			finish();
 		}
@@ -70,11 +74,14 @@ public class GetPhotoNameActivity extends ListActivity{
 
     	switch (requestCode) {
         case Constants.CODE_FOR_WORKSHEETCONTENT:
-        	String photoName = data.getStringExtra(Constants.PHOTONAME);
-        	Intent intent = new Intent();
-        	intent.putExtra(Constants.PHOTONAME, photoName);
-        	setResult(Constants.CODE_FOR_PHOTONAME, intent);
-        	finish();
+        	if(resultCode==RESULT_OK)
+        	{
+	        	String photoName = data.getStringExtra(Constants.PHOTONAME);
+	        	Intent intent = new Intent();
+	        	intent.putExtra(Constants.PHOTONAME, photoName);
+	        	setResult(RESULT_OK, intent);
+	        	finish();
+        	}
         	break;
     	}
 	}
@@ -93,13 +100,14 @@ public class GetPhotoNameActivity extends ListActivity{
 	    File inputWorkbook = new File(excelFile);
 	    if(inputWorkbook.exists()){
 	        try {
-	        	Workbook w = Workbook.getWorkbook(inputWorkbook);
-	        	for(int j = 0; j < w.getSheets().length; j++) {
-	        		Sheet sheet = w.getSheet(j);
-	        		if(!sheet.getName().equals(""))
-	        			resultSet.add(sheet.getName());
+	        	FileInputStream FSInputWorkbook = new FileInputStream(excelFile);
+	        	HSSFWorkbook w = new HSSFWorkbook(FSInputWorkbook);
+	        	for(int j = 0; j < w.getNumberOfSheets(); j++) {
+	        		HSSFSheet sheet = w.getSheetAt(j);
+	        		if(!sheet.getSheetName().equals(""))
+	        			resultSet.add(sheet.getSheetName());
 	        	}
-	        }catch (Exception e) {
+	        }catch (Exception e) {	        
 	            e.printStackTrace();
 	        }
 	    }
@@ -115,7 +123,6 @@ public class GetPhotoNameActivity extends ListActivity{
 	    return resultSet;
 
     }
-
 
 
 }

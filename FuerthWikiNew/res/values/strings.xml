@@ -9,7 +9,7 @@
     <string name="action_resultfolder">Zielordner der Fotos wählen</string>
     <string name="action_info">Info</string>
     <string name="about_msg">FuerthWiki - Eine Android App zum Fotografieren der Fürther Sehenswürdigkeiten \n\n\u00A9 2015 created by David Ladek \n\n view the source code at \nhttps://github.com/dave26/fuerthwiki</string>
-	<string name="about_fuerthwiki">Release Notes \n v1.0\n-Erste lauffähige Version</string>
+	<string name="about_fuerthwiki">Release Notes \n v1.0\n-Erste lauffähige Version\n v1.1\n-Verwendung von ApachePOI 3.11</string>
 
     
 

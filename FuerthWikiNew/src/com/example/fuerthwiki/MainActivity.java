@@ -29,7 +29,7 @@ import android.widget.Toast;
 public class MainActivity extends Activity {
 
 	private static final String TAG = MainActivity.class.getSimpleName();
-	private static String excelFile = "/storage/emulated/0/documents/Denkmalliste.xls";
+	private static String excelFile = "";
 	TextView textview_infotext_excelfile;
 	TextView textview_Resultfolder;
 	Button button_take_photo;
@@ -82,10 +82,15 @@ public class MainActivity extends Activity {
 	        break;
         
         case Constants.CODE_FOR_PHOTONAME:
-        	String photoName = data.getStringExtra(Constants.PHOTONAME);
-        	Intent i = new Intent(MainActivity.this, CameraActivity.class);
-			i.putExtra(Constants.PHOTONAME, photoName);
-			startActivityForResult(i, Constants.CODE_FOR_RESULTFILE);
+        	if(resultCode==RESULT_OK)
+        	{
+	        	String photoName = data.getStringExtra(Constants.PHOTONAME);
+	        	Intent i = new Intent(MainActivity.this, CameraActivity.class);
+				i.putExtra(Constants.PHOTONAME, photoName);
+				startActivityForResult(i, Constants.CODE_FOR_RESULTFILE);
+        	}
+        	else
+        		Toast.makeText(MainActivity.this, "Es wurde kein Fotoname gewählt", Toast.LENGTH_SHORT).show();
         	break;
         	
         case Constants.CODE_FOR_RESULTFILE:
@@ -152,7 +157,7 @@ public class MainActivity extends Activity {
         	return true;
 
         case R.id.action_info:
-        	String title = getString(R.string.app_name) + " build 1.0";
+        	String title = getString(R.string.app_name) + " build 1.1";
         	Builder builder_INFO = new Builder(this);
         	builder_INFO.setTitle(title);
         	builder_INFO.setView(View.inflate(this, R.layout.info, null));

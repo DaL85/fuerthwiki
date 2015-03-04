@@ -1,13 +1,16 @@
 package com.example.fuerthwiki;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import jxl.Cell;
-import jxl.Sheet;
-import jxl.Workbook;
+import org.apache.poi.hssf.usermodel.HSSFCell;
+import org.apache.poi.hssf.usermodel.HSSFRow;
+import org.apache.poi.hssf.usermodel.HSSFSheet;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+
 import android.app.ListActivity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -50,7 +53,7 @@ public class ReadWorksheetContentActivity extends ListActivity{
 						int arg2, long arg3) {
 					Intent intent = new Intent();
 					intent.putExtra(Constants.PHOTONAME, ExcelItemArrayAdapter.getItem(arg2));
-					setResult(Constants.CODE_FOR_PHOTONAME, intent);
+					setResult(RESULT_OK, intent);
 					finish();
 				}
 			});
@@ -77,18 +80,19 @@ public class ReadWorksheetContentActivity extends ListActivity{
 	public List<String> getWorksheetContent(String excelFile, String worksheet) throws IOException  {
 		List<String> resultSet = new ArrayList<String>();
 	    File inputWorkbook = new File(excelFile);
+	    FileInputStream FSInputWorkbook = new FileInputStream(excelFile);
 	    if(inputWorkbook.exists()){
 	        try {
-	        	Workbook w = Workbook.getWorkbook(inputWorkbook);
+	        	HSSFWorkbook w = new HSSFWorkbook(FSInputWorkbook);
 	            // Get the first sheet
-	            Sheet sheet = w.getSheet(worksheet);
+	            HSSFSheet sheet = w.getSheet(worksheet);
 	            // Loop over column and lines
-	            for (int j = 0; j < sheet.getRows(); j++) {
-	                Cell cell = sheet.getCell(0, j);	                
-                    for (int i = 0; i < sheet.getColumns(); i++) {
-                        Cell cel = sheet.getCell(i, j);
-                        if(!cel.getContents().equals(""))
-                        	resultSet.add(cel.getContents());
+	            for (int j = 0; j < sheet.getPhysicalNumberOfRows(); j++) {
+	                HSSFRow row = sheet.getRow(j);	                
+                    for (int i = 0; i < row.getPhysicalNumberOfCells(); i++) {
+                        HSSFCell cell = row.getCell(i);
+                        if(!cell.getStringCellValue().equals(""))
+                        	resultSet.add(cell.getStringCellValue());
                     }	                
 	                continue;
 	            }
@@ -106,7 +110,6 @@ public class ReadWorksheetContentActivity extends ListActivity{
 	        resultSet.add("Dokument als .xls speichern");
 	    }
 	    return resultSet;
-
     }
 
 }
