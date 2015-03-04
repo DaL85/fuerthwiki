@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">FuerthWiki</string>
+    <string name="Infotext">Bitte Fotoname über Exceldokument wählen</string>
+    <string name="action_exit">Beenden</string>
+    <string name="action_excelfile">Excelfile wählen</string>
+
+</resources>
