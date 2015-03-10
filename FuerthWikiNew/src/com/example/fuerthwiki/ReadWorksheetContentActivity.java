@@ -14,102 +14,102 @@ import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import android.app.ListActivity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
-import android.widget.AdapterView.OnItemClickListener;
 
-public class ReadWorksheetContentActivity extends ListActivity{
+@SuppressWarnings("javadoc")
+public class ReadWorksheetContentActivity extends ListActivity {
 
-	private static final String LOG_TAG = ReadWorksheetContentActivity.class.getSimpleName();
-	private ArrayAdapter<String> ExcelItemArrayAdapter;
-	private List<String> excelItems;
-	String[] item_array=null;
-	
+	private static final String LOG_TAG = ReadWorksheetContentActivity.class
+			.getSimpleName();
+	private final ArrayAdapter<String> excelItemArrayAdapter = new ArrayAdapter<String>(
+			this, android.R.layout.simple_list_item_1);
+
+	private List<String> excelItems = new ArrayList<>();
+
 	@Override
-	public void onCreate(Bundle savedInstanceState) {
+	public void onCreate(final Bundle savedInstanceState) {
 
 		try {
-			super.onCreate(savedInstanceState);   
-			setContentView(R.layout.activity_getphotoname);
-			//hier ListView mit allen Elementen anzeigen
-			ExcelItemArrayAdapter = new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1);//new CustomAdapter(this,R.id.textview_b_item);
-	        setListAdapter(ExcelItemArrayAdapter);
-	        
-	        Intent i = getIntent();
-	        String excelFile = i.getStringExtra(Constants.EXCELFILE);
-	        String worksheet = i.getStringExtra(Constants.WORKSHEET);
-	        excelItems=getWorksheetContent(excelFile,worksheet);
-	        for	(String item : excelItems)
-	        {
-	        	ExcelItemArrayAdapter.add(item);
-	        }	        
-	        ExcelItemArrayAdapter.notifyDataSetChanged();
-			ListView lv = getListView();
+			super.onCreate(savedInstanceState);
+			this.setContentView(R.layout.activity_getphotoname);
+			// hier ListView mit allen Elementen anzeigen
+
+			this.setListAdapter(this.excelItemArrayAdapter);
+
+			final Intent intentInput = this.getIntent();
+			final String excelFile = intentInput
+					.getStringExtra(Constants.EXCELFILE);
+			final String worksheet = intentInput
+					.getStringExtra(Constants.WORKSHEET);
+
+			this.excelItems = this.getWorksheetContent(excelFile, worksheet);
+			this.excelItemArrayAdapter.addAll(this.excelItems);
+
+			this.excelItemArrayAdapter.notifyDataSetChanged();
+			final ListView lv = this.getListView();
 			lv.setOnItemClickListener(new OnItemClickListener() {
 				@Override
-				public void onItemClick(AdapterView<?> arg0, View arg1,
-						int arg2, long arg3) {
-					Intent intent = new Intent();
-					intent.putExtra(Constants.PHOTONAME, ExcelItemArrayAdapter.getItem(arg2));
-					setResult(RESULT_OK, intent);
-					finish();
+				public void onItemClick(final AdapterView<?> arg0,
+						final View arg1, final int arg2, final long arg3) {
+					final Intent intent = new Intent();
+					intent.putExtra(
+							Constants.PHOTONAME,
+							ReadWorksheetContentActivity.this.excelItemArrayAdapter
+									.getItem(arg2));
+					ReadWorksheetContentActivity.this.setResult(RESULT_OK,
+							intent);
+					ReadWorksheetContentActivity.this.finish();
 				}
 			});
-	      
-			//Element wählen lassen dann(aber noch abändern):
-//			
-			
-		} catch (Exception e) {
-			finish();
+
+		} catch (final Exception e) {
+			Log.e(LOG_TAG, e.getMessage(), e);
+			this.finish();
 		}
 
 	}
 
-	
-	@Override
-	protected void onRestoreInstanceState(Bundle savedInstanceState) {
-		
-	}
+	public List<String> getWorksheetContent(final String excelFile,
+			final String worksheet) throws IOException {
+		final List<String> resultSet = new ArrayList<String>();
+		final File inFile = new File(excelFile);
+		final FileInputStream FSInputWorkbook = new FileInputStream(inFile);
+		if (inFile.exists()) {
+			try {
+				final HSSFWorkbook workbook = new HSSFWorkbook(FSInputWorkbook);
+				// Get the first sheet
+				final HSSFSheet sheet = workbook.getSheet(worksheet);
+				// Loop over column and lines
+				for (int j = 0; j < sheet.getPhysicalNumberOfRows(); j++) {
+					final HSSFRow row = sheet.getRow(j);
+					for (int i = 0; i < row.getPhysicalNumberOfCells(); i++) {
+						final HSSFCell cell = row.getCell(i);
+						if (!cell.getStringCellValue().equals("")) {
+							resultSet.add(cell.getStringCellValue());
+						}
+					}
+					continue;
+				}
+				workbook.close();
+			} catch (final Exception e) {
+				Log.e(LOG_TAG, e.getMessage(), e);
+			}
+		} else {
+			resultSet.add("File not found..!");
+		}
+		FSInputWorkbook.close();
 
-	@Override
-	protected void onSaveInstanceState(Bundle outState) {
-		
+		if (resultSet.isEmpty()) {
+			resultSet.add("Data not found..!");
+			resultSet.add("Evtl konnte das File nicht gelesen werden");
+			resultSet.add("Dokument als .xls speichern");
+		}
+		return resultSet;
 	}
-	public List<String> getWorksheetContent(String excelFile, String worksheet) throws IOException  {
-		List<String> resultSet = new ArrayList<String>();
-	    File inputWorkbook = new File(excelFile);
-	    FileInputStream FSInputWorkbook = new FileInputStream(excelFile);
-	    if(inputWorkbook.exists()){
-	        try {
-	        	HSSFWorkbook w = new HSSFWorkbook(FSInputWorkbook);
-	            // Get the first sheet
-	            HSSFSheet sheet = w.getSheet(worksheet);
-	            // Loop over column and lines
-	            for (int j = 0; j < sheet.getPhysicalNumberOfRows(); j++) {
-	                HSSFRow row = sheet.getRow(j);	                
-                    for (int i = 0; i < row.getPhysicalNumberOfCells(); i++) {
-                        HSSFCell cell = row.getCell(i);
-                        if(!cell.getStringCellValue().equals(""))
-                        	resultSet.add(cell.getStringCellValue());
-                    }	                
-	                continue;
-	            }
-	        }catch (Exception e) {
-	            e.printStackTrace();
-	        }
-	    }
-	    else
-	    {
-	        resultSet.add("File not found..!");
-	    }
-	    if(resultSet.size()==0){
-	        resultSet.add("Data not found..!");
-	        resultSet.add("Evtl konnte das File nicht gelesen werden");
-	        resultSet.add("Dokument als .xls speichern");
-	    }
-	    return resultSet;
-    }
 
 }
