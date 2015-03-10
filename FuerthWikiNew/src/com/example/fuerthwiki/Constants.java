@@ -2,6 +2,10 @@ package com.example.fuerthwiki;
 
 public class Constants {
 
+	private Constants() {
+		super();
+	}
+
 	public static final int FILE_SELECT_CODE = 0;
 	public static final int CODE_FOR_RESULTFOLDER = 1;
 	public static final int CODE_FOR_RESULTFILE = 5;
