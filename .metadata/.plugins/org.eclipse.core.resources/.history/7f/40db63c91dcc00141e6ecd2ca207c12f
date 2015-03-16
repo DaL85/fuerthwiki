@@ -1,0 +1,5 @@
+package com.example.fuerthwiki.Database;
+
+public class DatabaseEntry {
+
+}

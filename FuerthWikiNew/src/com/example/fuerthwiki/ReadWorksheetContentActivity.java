@@ -22,9 +22,8 @@ import android.widget.AdapterView.OnItemClickListener;
 
 public class ReadWorksheetContentActivity extends ListActivity{
 
-	private static final String LOG_TAG = ReadWorksheetContentActivity.class.getSimpleName();
-	private ArrayAdapter<String> ExcelItemArrayAdapter;
-	private List<String> excelItems;
+	//private static final String TAG = ReadWorksheetContentActivity.class.getSimpleName();
+	private ArrayAdapter<String> excelItemArrayAdapter;
 	String[] item_array=null;
 	
 	@Override
@@ -34,25 +33,21 @@ public class ReadWorksheetContentActivity extends ListActivity{
 			super.onCreate(savedInstanceState);   
 			setContentView(R.layout.activity_getphotoname);
 			//hier ListView mit allen Elementen anzeigen
-			ExcelItemArrayAdapter = new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1);//new CustomAdapter(this,R.id.textview_b_item);
-	        setListAdapter(ExcelItemArrayAdapter);
+			excelItemArrayAdapter = new ArrayAdapter<String>(this,android.R.layout.simple_list_item_1);//new CustomAdapter(this,R.id.textview_b_item);
+	        setListAdapter(excelItemArrayAdapter);
 	        
 	        Intent i = getIntent();
 	        String excelFile = i.getStringExtra(Constants.EXCELFILE);
-	        String worksheet = i.getStringExtra(Constants.WORKSHEET);
-	        excelItems=getWorksheetContent(excelFile,worksheet);
-	        for	(String item : excelItems)
-	        {
-	        	ExcelItemArrayAdapter.add(item);
-	        }	        
-	        ExcelItemArrayAdapter.notifyDataSetChanged();
+	        String worksheet = i.getStringExtra(Constants.WORKSHEET);	        
+	        excelItemArrayAdapter.addAll(getWorksheetContent(excelFile,worksheet));
+	        excelItemArrayAdapter.notifyDataSetChanged();
 			ListView lv = getListView();
 			lv.setOnItemClickListener(new OnItemClickListener() {
 				@Override
 				public void onItemClick(AdapterView<?> arg0, View arg1,
 						int arg2, long arg3) {
 					Intent intent = new Intent();
-					intent.putExtra(Constants.PHOTONAME, ExcelItemArrayAdapter.getItem(arg2));
+					intent.putExtra(Constants.PHOTONAME, excelItemArrayAdapter.getItem(arg2));
 					setResult(RESULT_OK, intent);
 					finish();
 				}
@@ -96,6 +91,7 @@ public class ReadWorksheetContentActivity extends ListActivity{
                     }	                
 	                continue;
 	            }
+	            w.close();
 	        }catch (Exception e) {
 	            e.printStackTrace();
 	        }

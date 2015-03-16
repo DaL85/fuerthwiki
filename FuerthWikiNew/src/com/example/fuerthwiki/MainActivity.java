@@ -3,19 +3,24 @@ package com.example.fuerthwiki;
 import java.io.File;
 import java.net.URISyntaxException;
 
+import com.example.fuerthwiki.Database.DatabaseControl;
+import com.example.fuerthwiki.Database.DatabaseEntry;
+
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
 import android.app.Dialog;
 import android.content.Context;
+import android.content.CursorLoader;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.provider.DocumentsContract;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -33,23 +38,26 @@ public class MainActivity extends Activity {
 	TextView textview_infotext_excelfile;
 	TextView textview_Resultfolder;
 	Button button_take_photo;
+	DatabaseControl database;
 
 	
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
         textview_infotext_excelfile = (TextView)findViewById(R.id.textView_Infotext_ExcelFile);
         textview_Resultfolder = (TextView)findViewById(R.id.textView_Infotext_ResultFolder);
         textview_Resultfolder.setText("Zielordner der Bilder: "+Environment.getExternalStoragePublicDirectory(
 		            Environment.DIRECTORY_PICTURES)+File.separator+"FuerthWiki");
         button_take_photo=(Button)findViewById(R.id.button_Take_Photo);
+        database = new DatabaseControl(this);
         
         button_take_photo.setOnClickListener(new OnClickListener() {
 			
 			@Override
 			public void onClick(View v) {
-				if(!excelFile.equals(""))
+				if(!excelFile.equals("")&&!excelFile.equals(null))
 				{
 					Intent iname = new Intent(MainActivity.this,GetPhotoNameActivity.class);
 					iname.putExtra(Constants.EXCELFILE, excelFile);
@@ -60,7 +68,26 @@ public class MainActivity extends Activity {
 				
 			}
 		});
+        
+	      //get last state from database
+	    excelFile = getExcelfileFromDatabase();
+	    if(!excelFile.equals(""))
+	    	textview_infotext_excelfile.setText("gewähltes File:" +excelFile);
     }
+    
+	
+//    @Override
+//    public void onStart(){
+//    	super.onStart();
+//    	//get last state from database
+//        excelFile = getExcelfileFromDatabase();
+//        if(!excelFile.equals(""))
+//        	textview_infotext_excelfile.setText("gewähltes File:" +excelFile);
+//    }
+//    @Override
+//	public void onStop() {
+//		super.onStop();
+//	}
 
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 
@@ -71,11 +98,12 @@ public class MainActivity extends Activity {
 	            Uri uri = data.getData();
 	            Log.d(TAG, "File Uri: " + uri.toString());
 	            try{
-	            	String path = getPath(this, uri);
+	            	String path = getPath(this, uri);//getPath(this, uri);
 	            	excelFile=path;
 	            	textview_infotext_excelfile.setText("gewähltes File:" +excelFile);
+	            	writeExcelfileInDatabase(excelFile);
 		            Log.d(TAG, "File Path: " + path);
-	            }catch(URISyntaxException e){
+	            }catch(Exception e){
 	            	Log.e(TAG,e.getMessage());
 	            }
 	        }
@@ -114,7 +142,6 @@ public class MainActivity extends Activity {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
         switch(item.getItemId()){
         case R.id.action_exit: 
         	 AlertDialog.Builder builder = new AlertDialog.Builder(this);		    
@@ -171,27 +198,78 @@ public class MainActivity extends Activity {
         }
     }
     
-    public static String getPath(Context context, Uri uri) throws URISyntaxException {
+    @SuppressLint("NewApi")
+	public static String getPath(Context context, Uri uri) throws URISyntaxException {
         if ("content".equalsIgnoreCase(uri.getScheme())) {
-            String[] projection = { "_data" };
-            Cursor cursor = null;
-
-            try {
-                cursor = context.getContentResolver().query(uri, projection, null, null, null);
-                int column_index = cursor.getColumnIndexOrThrow("_data");
-                if (cursor.moveToFirst()) {
-                    return cursor.getString(column_index);
-                }
-            } catch (Exception e) {
-                // Eat it
-            }
+        	Cursor cursor = null;
+        	try { 
+        	    String[] proj = { MediaStore.Images.Media.DATA };
+        	    cursor = context.getContentResolver().query(uri,  proj, null, null, null);
+        	    int column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+        	    cursor.moveToFirst();
+        	    String path = cursor.getString(column_index);
+        	    if(path!=null)
+        	    	return path;
+        	    else{
+	        	    String wholeID = DocumentsContract.getDocumentId(uri);
+	    	        String id = wholeID.split(":")[1];
+	    	        return "/storage/emulated/0/"+id;
+        	    }
+        	  }finally {
+        	    if (cursor != null) {
+        	      cursor.close();
+        	    }
+        	  }
         }
         else if ("file".equalsIgnoreCase(uri.getScheme())) {
             return uri.getPath();
         }
-
         return null;
     } 
+
+    @SuppressLint("NewApi")
+    public static String getRealPathFromURI_API19(Context context, Uri uri){
+        String filePath = "";
+        String wholeID = DocumentsContract.getDocumentId(uri);
+
+         // Split at colon, use second item in the array
+         String id = wholeID.split(":")[1];
+
+         String[] column = { MediaStore.Images.Media.DATA };     
+
+         // where id is equal to             
+         String sel = MediaStore.Images.Media._ID + "=?";
+
+         Cursor cursor = context.getContentResolver().query(uri, 
+                                   column, sel, new String[]{ id }, null);
+
+         int columnIndex = cursor.getColumnIndex(column[0]);
+
+         if (cursor.moveToFirst()) {
+             filePath = cursor.getString(columnIndex);
+         }   
+         cursor.close();
+         return filePath;
+    }
+
+    @SuppressLint("NewApi")
+    public static String getRealPathFromURI_API11to18(Context context, Uri contentUri) {
+          String[] proj = { MediaStore.Images.Media.DATA };
+          String result = null;
+
+          CursorLoader cursorLoader = new CursorLoader(
+                  context, 
+            contentUri, proj, null, null, null);        
+          Cursor cursor = cursorLoader.loadInBackground();
+
+          if(cursor != null){
+           int column_index = 
+             cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+           cursor.moveToFirst();
+           result = cursor.getString(column_index);
+          }
+          return result;  
+    }
     public String getFileName(String Path){
     	String[] pathArray = Path.split("/");
     	return pathArray[pathArray.length-1];
@@ -202,6 +280,36 @@ public class MainActivity extends Activity {
         Uri contentUri = Uri.fromFile(f);
         mediaScanIntent.setData(contentUri);
         this.sendBroadcast(mediaScanIntent);
+    }
+    private void writeExcelfileInDatabase(String file){
+    	try{
+    		database.open();
+    		database.createEntry(file);
+    		}catch (Exception ex)
+    		{
+    			Toast.makeText(MainActivity.this, ex.toString(), Toast.LENGTH_LONG).show();
+    			Log.d(TAG, ex.toString());
+    		}
+    		finally
+    		{
+    			database.close();
+    		} 
+    }
+    private String getExcelfileFromDatabase(){
+    	String file = "";
+    	try{
+    		database.open();
+    		DatabaseEntry e = database.getLastEntry();
+    		if(!e.equals(null))
+    			file = e.getExcelfile();
+    	}catch(Exception ex){
+    		Toast.makeText(MainActivity.this, ex.toString(), Toast.LENGTH_LONG).show();
+			Log.d(TAG, ex.toString());
+    	}
+    	finally{
+    		database.close();
+    	}
+    	return file;
     }
     
 }

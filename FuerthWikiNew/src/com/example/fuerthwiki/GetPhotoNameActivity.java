@@ -21,7 +21,7 @@ import android.view.View;
 public class GetPhotoNameActivity extends ListActivity{
 
 
-	private static final String LOG_TAG = GetPhotoNameActivity.class.getSimpleName();
+	//private static final String LOG_TAG = GetPhotoNameActivity.class.getSimpleName();
 	private ArrayAdapter<String> ExcelItemArrayAdapter;
 	private List<String> excelItems;
 	String excelFile;
@@ -38,11 +38,8 @@ public class GetPhotoNameActivity extends ListActivity{
 	        
 	        Intent i = getIntent();
 	        excelFile = i.getStringExtra(Constants.EXCELFILE);
-	        excelItems=getWorksheets(excelFile);
-	        for	(String item : excelItems)
-	        {
-	        	ExcelItemArrayAdapter.add(item);
-	        }	        
+	        excelItems=getWorksheets(excelFile);	        
+	        ExcelItemArrayAdapter.addAll(excelItems);
 	        ExcelItemArrayAdapter.notifyDataSetChanged();
 			ListView lv = getListView();
 			lv.setOnItemClickListener(new OnItemClickListener() {
@@ -107,6 +104,7 @@ public class GetPhotoNameActivity extends ListActivity{
 	        		if(!sheet.getSheetName().equals(""))
 	        			resultSet.add(sheet.getSheetName());
 	        	}
+	        	w.close();
 	        }catch (Exception e) {	        
 	            e.printStackTrace();
 	        }
