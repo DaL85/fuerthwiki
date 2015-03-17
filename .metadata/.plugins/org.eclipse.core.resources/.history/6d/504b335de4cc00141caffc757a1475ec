@@ -1,0 +1,42 @@
+package com.example.fuerthwiki;
+
+public class Item {
+	//private String details;
+	private String name;
+	//private int price;
+
+	public Item(){
+
+	}
+
+	public Item(String name, String d, int p){
+		//this.details = d;
+		this.name = name;
+		//this.price = p;
+	}
+
+	public String getDetails() {
+		return "";
+	}
+
+	public void setDetails(String details) {
+		this.name = details;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		//this.name = name;
+	}
+
+	public int getPrice() {
+		return 0;
+	}
+
+	public void setPrice(int price) {
+		//this.price = price;
+	}
+
+}

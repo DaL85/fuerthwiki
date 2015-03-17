@@ -2,4 +2,3 @@ INDEX VERSION 1.126+C:\Development\Eclipse Workspaces\FuerthWikiNew\.metadata\.p
 3776920973.index
 1350192743.index
 485721878.index
-3440406820.index

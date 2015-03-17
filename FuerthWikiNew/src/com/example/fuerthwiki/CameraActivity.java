@@ -6,7 +6,6 @@ import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
 import android.provider.MediaStore;
 import android.util.Log;
 
@@ -27,8 +26,7 @@ public class CameraActivity extends Activity{
 			super.onCreate(savedInstanceState);   
 			Intent i = getIntent();
 			photoName=i.getStringExtra(Constants.PHOTONAME);
-			File root = new File(Environment.getExternalStoragePublicDirectory(
-		    Environment.DIRECTORY_PICTURES)+File.separator+ "FuerthWiki"+File.separator);
+			File root = new File(Constants.FUERTHWIKI_FOLDER);
 			root.mkdirs();
 			sdDir = new File(root, photoName+".jpg");
 			Log.d(LOG_TAG, "Creating image storage file: " + sdDir.getPath());

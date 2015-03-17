@@ -23,4 +23,18 @@
 <fullyQualifiedTypeName name="android.content.CursorLoader"/>
 <fullyQualifiedTypeName name="android.annotation.SuppressLint"/>
 <fullyQualifiedTypeName name="android.provider.DocumentsContract"/>
+<fullyQualifiedTypeName name="android.content.SharedPreferences"/>
+<fullyQualifiedTypeName name="android.preference.PreferenceManager"/>
+<fullyQualifiedTypeName name="java.util.Map.Entry"/>
+<fullyQualifiedTypeName name="com.example.fuerthwiki.Database.DatabaseControl"/>
+<fullyQualifiedTypeName name="com.example.fuerthwiki.Database.DatabaseEntry"/>
+<fullyQualifiedTypeName name="android.widget.BaseAdapter"/>
+<fullyQualifiedTypeName name="android.view.ViewGroup"/>
+<fullyQualifiedTypeName name="android.content.ClipData.Item"/>
+<fullyQualifiedTypeName name="android.content.Context"/>
+<fullyQualifiedTypeName name="android.view.LayoutInflater"/>
+<fullyQualifiedTypeName name="android.widget.TextView"/>
+<fullyQualifiedTypeName name="com.example.fuerthwiki.R.layout"/>
+<fullyQualifiedTypeName name="android.widget.ArrayAdapter"/>
+<fullyQualifiedTypeName name="android.graphics.Color"/>
 </qualifiedTypeNameHistroy>

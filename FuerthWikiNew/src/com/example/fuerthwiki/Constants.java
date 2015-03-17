@@ -1,5 +1,9 @@
 package com.example.fuerthwiki;
 
+import java.io.File;
+
+import android.os.Environment;
+
 public class Constants {
 
 	public static final int FILE_SELECT_CODE = 0;
@@ -10,4 +14,6 @@ public class Constants {
 	public static final String EXCELFILE = "excelfile";
 	public static final String PHOTONAME = "photoname";
 	public static final String WORKSHEET = "worksheet";
+	public static final String FUERTHWIKI_FOLDER = Environment.getExternalStoragePublicDirectory(
+		    Environment.DIRECTORY_PICTURES)+File.separator+ "FuerthWiki"+File.separator;
 }

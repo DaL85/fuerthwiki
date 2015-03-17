@@ -1,0 +1,6 @@
+package com.example.fuerthwiki;
+
+public class ViewHolder
+{
+    static TextView itemName;
+}
